@@ -1,25 +1,55 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import "./App.css";
 
-function App() {
+import Header from "./components/Header";
+import Card from "./components/Card";
+import Form from "./components/Form";
+
+import { getAllCampaigns } from "./solana";
+
+const App = () => {
+  const [route, setRoute] = useState(0);
+  const [cards, setCards] = useState([]);
+
+  useEffect(() => {
+    getAllCampaigns().then((val) => {
+      setCards(val);
+      console.log(val);
+      console.log(val[0].amount_donated.toString());
+    });
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="ui container">
+      <Header setRoute={setRoute} />
+      {route === 0 ? (
+        <div>
+          {cards.map((e, idx) => (
+            <Card
+              key={e.pubId.toString()}
+              data={{
+                title: e.name,
+                description: e.description,
+                amount: e.amount_donated.toString(),
+                image: e.image_link,
+                id: e.pubId,
+              }}
+              setCards={setCards}
+            />
+          ))}
+        </div>
+      ) : (
+        <Form
+          setRoute={(e) => {
+            setRoute(e);
+            // getAllCampaigns().then((val) => {
+            //   setCards(val);
+            // });
+          }}
+        />
+      )}
     </div>
   );
-}
+};
 
 export default App;
